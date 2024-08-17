@@ -1,7 +1,6 @@
 import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { hash } from 'bcrypt';
 
-
 @Entity({ name: 'user' })
 export class User {
   @PrimaryGeneratedColumn()
@@ -19,7 +18,7 @@ export class User {
   @Column({ default: null })
   image: string;
 
-  @Column()
+  @Column({ select: false })
   password: string;
 
   @BeforeInsert()
