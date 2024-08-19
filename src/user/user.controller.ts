@@ -3,7 +3,7 @@ import {
   Controller,
   Get,
   Post,
-  Req,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -11,12 +11,15 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/createUser.dto';
 import { IUserResponse } from '@app/types/user/userResponse.interface';
 import { LoginUserDto } from './dto/loginUser.dto';
-import { IExpressRequest } from '@app/types/expressRequest.interface';
+import { UserDecorator } from './decorators/user.decorator';
+import { User } from '@app/models/user.entity';
+import { AuthGuard } from './guards/auth.guard';
 
 @Controller()
 export class UserController {
   constructor(private readonly userService: UserService) {}
   @Post('api/users')
+  @UseGuards(AuthGuard)
   @UsePipes(new ValidationPipe())
   async createUser(
     @Body('user') createUserDTO: CreateUserDto,
@@ -35,7 +38,8 @@ export class UserController {
   }
 
   @Get('api/user')
-  async currentUser(@Req() request: IExpressRequest): Promise<IUserResponse> {
-    return this.userService.buildUserResponse(request.user);
+  @UseGuards(AuthGuard)
+  async currentUser(@UserDecorator() user: User): Promise<IUserResponse> {
+    return this.userService.buildUserResponse(user);
   }
 }
