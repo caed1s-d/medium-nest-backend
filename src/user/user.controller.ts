@@ -21,7 +21,7 @@ import { UpdateUserDto } from './dto/updateUser.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
   @Post('api/users')
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @UsePipes(new ValidationPipe())
   async createUser(
     @Body('user') createUserDTO: CreateUserDto,

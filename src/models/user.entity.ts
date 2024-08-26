@@ -1,5 +1,6 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { hash } from 'bcrypt';
+import { Articles } from './article.entity';
 
 @Entity({ name: 'user' })
 export class User {
@@ -25,4 +26,7 @@ export class User {
   async hashPassword() {
     this.password = await hash(this.password, 10);
   }
+
+  @OneToMany(() => Articles, (article) => article.author)
+  articles: Articles[];
 }
