@@ -1,5 +1,5 @@
-import { Articles } from '@app/models/article.entity';
+import { ArticleType } from './article.type';
 
 export interface ArticleResponseInterface {
-  articles: Articles;
+  articles: ArticleType;
 }

@@ -1,6 +1,6 @@
-import { Articles } from "@app/models/article.entity";
+import { ArticleType } from "./article.type";
 
 export interface ArticlesResponseInterface {
-  articles: Articles[];
+  articles: ArticleType[];
   articlesCount: number;
 }
