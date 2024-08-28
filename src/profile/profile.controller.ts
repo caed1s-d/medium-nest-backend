@@ -11,11 +11,11 @@ import {
 import { AuthGuard } from 'src/user/guards/auth.guard';
 import { ProfileService } from './profile.service';
 
-@Controller('profiles')
+@Controller()
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
-  @Get(':username')
+  @Get('api/profiles/:username')
   async getProfile(
     @UserDecorator('id') currentUserId: number,
     @Param('username') profileUsername: string,
@@ -27,7 +27,7 @@ export class ProfileController {
     return this.profileService.buildProfileResponse(profile);
   }
 
-  @Post(':username/follow')
+  @Post('api/profiles/:username/follow')
   @UseGuards(AuthGuard)
   async followProfile(
     @UserDecorator('id') currentUserId: number,
@@ -40,7 +40,7 @@ export class ProfileController {
     return this.profileService.buildProfileResponse(profile);
   }
 
-  @Delete(':username/follow')
+  @Delete('api/profiles/:username/follow')
   @UseGuards(AuthGuard)
   async unfollowProfile(
     @UserDecorator('id') currentUserId: number,

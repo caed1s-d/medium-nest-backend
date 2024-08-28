@@ -18,6 +18,9 @@ export class UserService {
   ) {}
 
   async createUser(createUserDTO: CreateUserDto): Promise<User> {
+    const errorResponse = {
+      errors: {},
+    };
     const userByEmail = await this.userRepository.findOne({
       where: { email: createUserDTO.email },
     });
@@ -25,12 +28,18 @@ export class UserService {
       where: { username: createUserDTO.username },
     });
 
-    if (userByEmail || userByName) {
-      throw new HttpException(
-        'Такой пользователь уже существует',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      );
+    if (userByEmail) {
+      errorResponse.errors['email'] = 'has already been taken!';
     }
+
+    if (userByName) {
+      errorResponse.errors['username'] = 'has already been taken!';
+    }
+
+    if (userByEmail || userByName) {
+      throw new HttpException(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
     const newUser = new User();
 
     Object.assign(newUser, createUserDTO);
@@ -39,22 +48,25 @@ export class UserService {
   }
 
   async login(loginUserDto: LoginUserDto): Promise<User> {
+    const errorResponse = {
+      errors: { 'email or password': 'is invalid' },
+    };
     const user = await this.userRepository.findOne({
       where: { email: loginUserDto.email },
       select: ['bio', 'email', 'id', 'image', 'username', 'password'],
     });
 
     if (!user) {
-      throw new HttpException(
-        'Пользователь не найден или введенные данные невалидны',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
-    const isValidPassword = await compare(loginUserDto.password, user.password);
+    const isPasswordCorrect = await compare(
+      loginUserDto.password,
+      user.password,
+    );
 
-    if (!isValidPassword) {
-      throw new HttpException('Неверный пароль', HttpStatus.UNAUTHORIZED);
+    if (!isPasswordCorrect) {
+      throw new HttpException(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     delete user.password;

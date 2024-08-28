@@ -9,7 +9,6 @@ import {
   Query,
   UseGuards,
   UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { AuthGuard } from '@app/user/guards/auth.guard';
@@ -18,6 +17,7 @@ import { CreateArticleDto } from './dto/createArticle.dto';
 import { UserDecorator } from '@app/user/decorators/user.decorator';
 import { ArticleResponseInterface } from '@app/types/article/articleResponse.interface';
 import { ArticlesResponseInterface } from '@app/types/article/articlesResponse.interface';
+import { BackendValidationPipe } from '@app/shared/pipes/backendValidation.pipe';
 
 @Controller()
 export class ArticleController {
@@ -28,6 +28,15 @@ export class ArticleController {
   ): Promise<ArticleResponseInterface> {
     const article = await this.articleService.findBySlug(slug);
     return this.articleService.buildArticleResponse(article);
+  }
+
+  @Get('api/articles/feed')
+  @UseGuards(AuthGuard)
+  async getFeed(
+    @UserDecorator('id') currentUserId: number,
+    @Query() query: any,
+  ): Promise<ArticlesResponseInterface> {
+    return await this.articleService.getFeed(currentUserId, query);
   }
 
   @Delete('api/articles/:slug')
@@ -41,7 +50,7 @@ export class ArticleController {
 
   @Put('api/articles/:slug')
   @UseGuards(AuthGuard)
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new BackendValidationPipe())
   async updateArticle(
     @UserDecorator('id') currentUserId: number,
     @Param('slug') slug: string,
@@ -65,6 +74,7 @@ export class ArticleController {
   }
 
   @Post('api/articles')
+  @UsePipes(new BackendValidationPipe())
   @UseGuards(AuthGuard)
   async createArticle(
     @UserDecorator() currentUser: User,
